@@ -1,0 +1,6 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Qtn1`(mth varchar(3), yr int)
+BEGIN
+select orderNumber, orderDate, status 
+from Orders
+where left(monthname(orderDate), 3) = mth and year(orderDate) = yr;
+END

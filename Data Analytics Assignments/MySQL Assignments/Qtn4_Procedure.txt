@@ -1,0 +1,50 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Qtn4`()
+BEGIN
+Declare Cus_No int;
+Declare C_limit decimal(10,2) default 0.0;
+Declare Up_limit decimal(10,2) default 0.0;
+Declare P_status varchar(20);
+Declare Finished int default 0;
+
+#Declaring Cursor 
+Declare Cred_cur cursor for 
+select customers.customerNumber, customers.Creditlimit, payments.purchase_status
+from customers
+join payments
+where customers.customerNumber = payments.customerNumber;
+
+#Creating Exception Handler and Setting Exception Variable to 1 when Exception occurs
+Declare exit handler for Not Found Set Finished = 1;
+
+#Setting User Defined Exception
+Declare continue handler for SQLSTATE '45000'
+	begin
+	Select concat("Updating", Cus_No,"--->", Up_limit) as Message;
+    Update Customers 
+    set Creditlimit = Up_limit
+    where CustomerNumber = Cus_No;
+    end;
+  
+#opening/Starting the Cursor
+ open Cred_cur;
+
+#Starting A loop for the Cursor to fetch Everything One by One 
+ Credloop: Repeat
+
+     #fetching for cursor 
+	fetch Cred_cur into Cus_No, C_limit, P_status;
+    
+    #if Statement
+    if P_Status = "Silver" and C_limit > 60000 then
+        set Up_limit = 60000;
+        Signal sqlstate '45000';
+	elseif P_Status = "Platinum" and C_limit < 100000 then
+		set Up_limit = 100000;
+        Signal sqlstate '45000';
+	else
+		iterate Credloop;
+	end if;
+    until Finished = 1
+end repeat Credloop;
+close Cred_cur;
+END

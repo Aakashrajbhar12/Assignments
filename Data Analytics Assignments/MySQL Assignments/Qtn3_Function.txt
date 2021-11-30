@@ -1,0 +1,27 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `Qtn3_func`(Cus_no int) RETURNS varchar(20) CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+#Function Variable Declaring
+Declare Tot_amt decimal (10,2);
+Declare stats varchar (20);
+
+#Query to Fetch Total_amount from payment Table
+select sum(amount)
+into Tot_amt
+from payments
+where CustomerNumber = Cus_No;
+
+#Condition To Set Stats Using Nested If Statement
+if Tot_amt < 25000 then
+	set stats = "Silver";
+elseif Tot_amt between 25000 and 50000 then
+	set Stats = "Gold";
+elseif Tot_amt> 50000 then
+	set stats = "Platium";
+end if;	
+    
+if tot_amt is null then
+	Return "Invalid" ;
+end if;
+RETURN Stats;
+END

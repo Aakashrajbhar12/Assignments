@@ -1,0 +1,7 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Qtn2`(sts varchar(15))
+BEGIN
+Insert into cancellations(Customer_Number, Order_Number, Comments)
+select customerNumber, orderNumber, comments
+from orders
+where status = sts;
+END
